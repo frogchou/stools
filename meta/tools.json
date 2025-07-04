@@ -53,5 +53,17 @@
       "description": "输出系统发行版、内核、资源使用率等详细信息，自动适配主流Linux并自动安装依赖，兼容性强。",
       "file": "sys_info.sh",
       "tags": ["system", "info", "resource", "compatibility", "auto-install"]
+    },
+    {
+      "name": "resource_monitor",
+      "description": "专业离线版系统资源监控工具，支持多指标阈值告警和邮件通知，兼容多种Linux发行版。",
+      "file": "resource_monitor.sh",
+      "tags": ["monitor", "system", "alert", "email", "cron", "log", "disk", "cpu", "memory", "network","kylin","offline"]
+    },
+    {
+      "name": "linux_user_manager",
+      "description": "功能全面的Linux用户/组/权限交互式管理工具，支持用户管理、组管理、权限控制、审计日志、安全策略和自动化依赖安装，兼容Ubuntu、Debian、CentOS、RHEL、Fedora、Kylin等主流发行版。",
+      "file": "linux_user_manager.sh",
+      "tags": ["user-management", "group-management", "permission-control", "audit-log", "security", "compatibility", "auto-install"]
     }
   ]

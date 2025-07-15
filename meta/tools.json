@@ -53,5 +53,23 @@
       "description": "输出系统发行版、内核、资源使用率等详细信息，自动适配主流Linux并自动安装依赖，兼容性强。",
       "file": "sys_info.sh",
       "tags": ["system", "info", "resource", "compatibility", "auto-install"]
+    },
+    {
+      "name": "resource_monitor",
+      "description": "专业离线版系统资源监控工具，支持多指标阈值告警和邮件通知，兼容多种Linux发行版。",
+      "file": "resource_monitor.sh",
+      "tags": ["monitor", "system", "alert", "email", "cron", "log", "disk", "cpu", "memory", "network","kylin","offline"]
+    },
+    {
+      "name": "linux_user_manager",
+      "description": "功能全面的Linux用户/组/权限交互式管理工具，支持用户管理、组管理、权限控制、审计日志、安全策略和自动化依赖安装，兼容Ubuntu、Debian、CentOS、RHEL、Fedora、Kylin等主流发行版。",
+      "file": "linux_user_manager.sh",
+      "tags": ["user-management", "group-management", "permission-control", "audit-log", "security", "compatibility", "auto-install"]
+    },
+    {
+      "name": "enterprise_security_auditor",
+      "description": "企业级系统安全审计工具，支持国产化系统（银河麒麟、统信UOS、中标麒麟）和飞腾/鲲鹏架构，提供全面的安全基线检查、风险评估、修复建议和合规报告，涵盖用户认证、SSH安全、防火墙、文件权限、系统更新等关键领域。支持容器和WSL环境，并能与OpenSCAP集成进行深度安全基线扫描。",
+      "file": "security_audit.sh",
+      "tags": ["security-audit","compliance","risk-assessment","hardening","compatibility","container","wsl","scap-integration","国产化","飞腾","鲲鹏"]
     }
   ]

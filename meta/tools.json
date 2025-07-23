@@ -72,4 +72,11 @@
       "file": "security_audit.sh",
       "tags": ["security-audit","compliance","risk-assessment","hardening","compatibility","container","wsl","scap-integration","国产化","飞腾","鲲鹏"]
     }
-  ]
+  ,
+    {
+      "name": "install_docker",
+      "description": "一键安装最新Docker环境，仅支持CentOS和Ubuntu系统。",
+      "file": "install_docker.sh",
+      "tags": ["docker", "install", "centos", "ubuntu"]
+    }
+]

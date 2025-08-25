@@ -71,6 +71,12 @@
       "description": "企业级系统安全审计工具，支持国产化系统（银河麒麟、统信UOS、中标麒麟）和飞腾/鲲鹏架构，提供全面的安全基线检查、风险评估、修复建议和合规报告，涵盖用户认证、SSH安全、防火墙、文件权限、系统更新等关键领域。支持容器和WSL环境，并能与OpenSCAP集成进行深度安全基线扫描。",
       "file": "security_audit.sh",
       "tags": ["security-audit","compliance","risk-assessment","hardening","compatibility","container","wsl","scap-integration","国产化","飞腾","鲲鹏"]
+    },
+    {
+      "name": "find_tool",
+      "description": "功能全面的交互式文件查找工具，支持多种查找条件包括名称、类型、大小、时间、权限、所有者、内容和inode，提供完善的输入验证、错误处理和结果限制机制，确保安全性和易用性。",
+      "file": "find_tool.sh",
+      "tags": ["file-search", "find-command", "interactive-tool", "input-validation", "error-handling", "result-limit","permission-checking"]
     }
   ,
     {

@@ -237,12 +237,14 @@ parse_params() {
 
 get_current_prefix() {
   local iface="$1"
-  ip -o -f inet addr show "$iface" | awk 'NR==1 {split($4,a,"/"); print a[2]}'
+  # 当网卡当前没有 IPv4 地址时，ip 命令会返回非 0，避免 set -e 提前退出
+  (ip -o -f inet addr show "$iface" 2>/dev/null || true) | awk 'NR==1 {split($4,a,"/"); print a[2]}'
 }
 
 get_current_gateway() {
   local iface="$1"
-  ip route show default dev "$iface" | awk 'NR==1{print $3}'
+  # 没有默认路由时 ip route 也可能返回非 0，同样兜底避免脚本中断
+  (ip route show default dev "$iface" 2>/dev/null || true) | awk 'NR==1{print $3}'
 }
 
 get_current_dns() {
@@ -372,9 +374,9 @@ EOF_CFG
     error "无法获取当前掩码，请在命令中提供掩码。"
     exit 1
   fi
-  local netmask
-  netmask=$(prefix_to_mask "$final_prefix")
+  local netmask=""
   if [ -n "$ip" ]; then
+    netmask=$(prefix_to_mask "$final_prefix")
     sed -i "/^IPADDR=/d" "$cfg"
     sed -i "/^NETMASK=/d" "$cfg"
     echo "IPADDR=$ip" >> "$cfg"

@@ -76,7 +76,7 @@
       {
         "name": "ai_command_runner",
         "description": "根据用户命令向OpenAI请求生成脚本，自动保存到临时文件并执行后返回汇报。",
-        "file": "ai_command_runner.py",
+        "file": "ai_command_runner.sh",
         "tags": ["ai", "openai", "codegen", "automation", "execution"]
       },
       {

@@ -23,7 +23,7 @@ print_help() {
 stl - Linux 工具箱统一入口
 
 用法：
-  stl help                         显示此帮助信息
+  stl help                        显示此帮助信息
   stl source <URL>                设置新的工具源
   stl list                        列出所有可用工具
   stl search <关键词>             搜索工具

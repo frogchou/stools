@@ -54,7 +54,7 @@ def build_prompt(user_command: str) -> str:
         你是一个可以根据需求编写脚本的助理。
         - 只返回代码，不要使用 Markdown、解释或额外文本。
         - 生成兼容性的 POSIX shell 脚本，第一行必须是 #!/usr/bin/env sh。
-        - 脚本必须避免交互式操作，使用安全默认值，并在遇到错误时以非零状态退出。
+        - 脚本必须避免交互式操作，使用安全默认值，并在遇到错误时以非零状态退出，如果遇到错误尽可能的详细的输出错误。
         - 任务描述：{user_command}
         """
     ).strip()
@@ -183,7 +183,7 @@ def main() -> None:
     analysis = call_openai(
         api_key=api_key,
         prompt=analysis_prompt,
-        system_prompt="你是一名中文简报助手，只输出简短的结论。",
+        system_prompt="你是一名中文简报助手，如果遇到错误需要分析错误原因，如果没有错误只输出简短的结论。",
     )
 
     print("\n===== 汇报 =====")

@@ -364,7 +364,13 @@ EOF_CFG
     sed -i "/^DNS1=/d" "$cfg"
     echo "DNS1=$dns" >> "$cfg"
   fi
-  systemctl restart network || { error "重启 network 服务失败，请手动检查。"; exit 1; }
+  if command -v ifdown >/dev/null 2>&1 && command -v ifup >/dev/null 2>&1; then
+    ifdown "$iface" >/dev/null 2>&1 || true
+    ifup "$iface" || { error "重启网卡 $iface 失败，请手动检查。"; exit 1; }
+  else
+    systemctl restart network || { error "重启 network 服务失败，请手动检查。"; exit 1; }
+  fi
+
   sleep 1
   if [ -n "$ip" ] && ! ip -4 addr show "$iface" | grep -q "$ip/$final_prefix"; then
     error "网卡 $iface IP 未生效，请检查 ifcfg 配置。"

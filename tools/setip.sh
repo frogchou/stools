@@ -167,14 +167,21 @@ detect_network_manager() {
 }
 
 list_interfaces() {
-  ip -o link show | awk -F': ' '$2!="lo"{print $2}'
+  # 跳过 lo 与临时 veth 设备，避免后续查询时碰到已消失的虚拟网卡
+  ip -o link show \
+    | awk -F': ' '$2!="lo"{print $2}' \
+    | awk '$1 !~ /^veth/ {print}'
 }
 
 show_interfaces_with_ip() {
   local idx=1
   while read -r iface; do
+    # 再次确认网卡还存在，避免 ip 命令报错导致脚本退出
+    if [ -z "$iface" ] || ! ip link show "$iface" >/dev/null 2>&1; then
+      continue
+    fi
     local ips
-    ips=$(ip -o -f inet addr show "$iface" | awk '{print $4}' | paste -sd"," -)
+    ips=$(ip -o -f inet addr show "$iface" 2>/dev/null | awk '{print $4}' | paste -sd"," -)
     echo "$idx) $iface ${ips:+[$ips]}"
     iface_list[$idx]="$iface"
     idx=$((idx+1))
@@ -240,6 +247,23 @@ get_current_gateway() {
 
 get_current_dns() {
   awk '/^nameserver/ {print $2}' /etc/resolv.conf | head -n1
+}
+
+apply_dns_to_resolv_conf() {
+  local dns="$1"
+  [ -z "$dns" ] && return
+  if [ ! -w /etc/resolv.conf ]; then
+    info "/etc/resolv.conf 不可写，跳过运行时 DNS 覆盖。"
+    return
+  fi
+  local tmp
+  tmp=$(mktemp)
+  cp /etc/resolv.conf "/etc/resolv.conf.bak-setip-$(date +%s)" 2>/dev/null || true
+  {
+    echo "nameserver $dns"
+    awk '/^nameserver/{print $0}' /etc/resolv.conf
+  } | awk '!seen[$0]++' > "$tmp"
+  mv "$tmp" /etc/resolv.conf
 }
 
 update_nmcli() {
@@ -364,11 +388,20 @@ EOF_CFG
     sed -i "/^DNS1=/d" "$cfg"
     echo "DNS1=$dns" >> "$cfg"
   fi
-  if command -v ifdown >/dev/null 2>&1 && command -v ifup >/dev/null 2>&1; then
-    ifdown "$iface" >/dev/null 2>&1 || true
-    ifup "$iface" || { error "重启网卡 $iface 失败，请手动检查。"; exit 1; }
+  local need_cycle=0
+  if [ -n "$ip" ] || [ -n "$gw" ] || [ -n "$prefix" ]; then
+    need_cycle=1
+  fi
+
+  if [ "$need_cycle" -eq 1 ]; then
+    if command -v ifdown >/dev/null 2>&1 && command -v ifup >/dev/null 2>&1; then
+      ifdown "$iface" >/dev/null 2>&1 || true
+      ifup "$iface" || { error "重启网卡 $iface 失败，请手动检查。"; exit 1; }
+    else
+      systemctl restart network || { error "重启 network 服务失败，请手动检查。"; exit 1; }
+    fi
   else
-    systemctl restart network || { error "重启 network 服务失败，请手动检查。"; exit 1; }
+    info "仅修改 DNS，跳过网卡重启以避免无关设备报错。"
   fi
 
   sleep 1
@@ -376,6 +409,8 @@ EOF_CFG
     error "网卡 $iface IP 未生效，请检查 ifcfg 配置。"
     exit 1
   fi
+
+  apply_dns_to_resolv_conf "$dns"
 }
 
 print_result() {

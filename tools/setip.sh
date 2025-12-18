@@ -374,9 +374,9 @@ EOF_CFG
     error "无法获取当前掩码，请在命令中提供掩码。"
     exit 1
   fi
-  local netmask
-  netmask=$(prefix_to_mask "$final_prefix")
+  local netmask=""
   if [ -n "$ip" ]; then
+    netmask=$(prefix_to_mask "$final_prefix")
     sed -i "/^IPADDR=/d" "$cfg"
     sed -i "/^NETMASK=/d" "$cfg"
     echo "IPADDR=$ip" >> "$cfg"

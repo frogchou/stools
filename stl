@@ -4,9 +4,9 @@
 # 说明：统一管理和调用 tools 下的脚本工具，支持源管理、搜索、离线下载等
 
 # ========== 配置 ==========
-CONFIG_FILE="$HOME/.stoolsrc"
-TOOLS_DIR="/opt/stools/tools"
-META_FILE="/opt/stools/meta/tools.json"
+CONFIG_FILE="${STOOLS_CONFIG_FILE:-$HOME/.stoolsrc}"
+TOOLS_DIR="${STOOLS_TOOLS_DIR:-/opt/stools/tools}"
+META_FILE="${STOOLS_META_FILE:-/opt/stools/meta/tools.json}"
 DEFAULT_SOURCE="https://raw.githubusercontent.com/frogchou/stools/main"
 
 # ========== 初始化配置文件 ==========
@@ -56,6 +56,46 @@ fetch_meta() {
         fi
     fi
     return 0
+}
+
+get_tool_file() {
+    local tool_name=$1
+    local tool_file=""
+
+    if [ -f "$META_FILE" ] && command -v jq &> /dev/null; then
+        tool_file=$(jq --arg name "$tool_name" -r '.[] | select(.name == $name) | .file // empty' "$META_FILE" 2>/dev/null | head -n 1)
+    fi
+
+    if [ -z "$tool_file" ] && fetch_meta >/dev/null 2>&1 && [ -f "$META_FILE" ] && command -v jq &> /dev/null; then
+        tool_file=$(jq --arg name "$tool_name" -r '.[] | select(.name == $name) | .file // empty' "$META_FILE" 2>/dev/null | head -n 1)
+    fi
+
+    if [ -n "$tool_file" ]; then
+        printf '%s\n' "$tool_file"
+    else
+        printf '%s.sh\n' "$tool_name"
+    fi
+}
+
+execute_tool_file() {
+    local tool_path=$1
+    shift
+
+    case "$tool_path" in
+        *.ps1)
+            if command -v pwsh &> /dev/null; then
+                pwsh -File "$tool_path" "$@"
+            elif command -v powershell &> /dev/null; then
+                powershell -File "$tool_path" "$@"
+            else
+                echo "鉂?PowerShell 鏈畨瑁咃紝鏃犳硶鎵ц $tool_path"
+                return 1
+            fi
+            ;;
+        *)
+            "$tool_path" "$@"
+            ;;
+    esac
 }
 
 list_tools() {
@@ -136,7 +176,8 @@ download_all() {
 
 update_tool() {
     local tool_name=$1
-    local tool_filename="$tool_name.sh"
+    local tool_filename
+    tool_filename="$(get_tool_file "$tool_name")"
     local tool_path="$TOOLS_DIR/$tool_filename"
 
     echo "🔄 正在更新工具 $tool_name..."
@@ -199,7 +240,8 @@ update_all_tools() {
 
 uninstall_tool() {
     local tool_name=$1
-    local tool_filename="$tool_name.sh"
+    local tool_filename
+    tool_filename="$(get_tool_file "$tool_name")"
     local tool_path="$TOOLS_DIR/$tool_filename"
 
     if [ ! -f "$tool_path" ]; then
@@ -226,13 +268,14 @@ uninstall_tool() {
 run_tool() {
     local tool_name=$1
     shift
-    local tool_filename="$tool_name.sh" # 假设工具文件名总是 .sh 结尾
+    local tool_filename
+    tool_filename="$(get_tool_file "$tool_name")"
     local tool_path="$TOOLS_DIR/$tool_filename"
 
     # 检查工具是否已在本地
     if [ -f "$tool_path" ]; then
         echo "ℹ️ 从本地执行工具 $tool_name..."
-        "$tool_path" "$@"
+        execute_tool_file "$tool_path" "$@"
         return $? # 返回工具脚本的退出状态
     fi
 
@@ -259,7 +302,7 @@ run_tool() {
         chmod +x "$tool_path"
         echo "✅ 工具 $tool_name 下载成功。"
         echo "ℹ️ 正在执行工具 $tool_name..."
-        "$tool_path" "$@"
+        execute_tool_file "$tool_path" "$@"
         return $?
     else
         echo "❌ 下载工具 $tool_name ($tool_filename) 失败。"

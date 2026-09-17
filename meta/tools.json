@@ -190,5 +190,30 @@
       "dns",
       "config"
     ]
+  },
+  {
+    "name": "list_ip_connections_linux",
+    "description": "List established external IPv4 TCP connections on Linux and query IP location details.",
+    "file": "list_ip_connections_linux.sh",
+    "tags": [
+      "network",
+      "connection",
+      "ip",
+      "location",
+      "linux"
+    ]
+  },
+  {
+    "name": "list_ip_connections_windows",
+    "description": "List established external IPv4 TCP connections on Windows and query IP location details.",
+    "file": "list_ip_connections_windows.ps1",
+    "tags": [
+      "network",
+      "connection",
+      "ip",
+      "location",
+      "windows",
+      "powershell"
+    ]
   }
 ]
